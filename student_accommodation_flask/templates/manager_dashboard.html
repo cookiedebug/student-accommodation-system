@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% block title %}Manager Dashboard | {{ app_name }}{% endblock %}
+{% block content %}<section class="section"><div class="section-head"><div><span class="eyebrow">LANDLORD / AGENT</span><h1>Property Management</h1><p>Manage only the properties assigned to your account.</p></div><a class="btn" href="{{url_for('new_hostel')}}">+ Add Accommodation</a></div>
+<div class="stats"><div><b>{{stats['listings']}}</b><span>Listings</span></div><div><b>{{stats['total_rooms']}}</b><span>Total Rooms</span></div><div><b>{{stats['available_rooms']}}</b><span>Available</span></div></div>
+<div class="panel property">
+  <h2>My pictures</h2>
+  <p class="muted">Upload your own photos here. Use the panel on each listing below for hostel pictures.</p>
+  <form method="post" action="{{ url_for('upload_my_photos') }}" enctype="multipart/form-data">
+    {% include "_upload_panel.html" %}
+    <button class="btn">Upload pictures</button>
+  </form>
+</div>
+<h2>My properties</h2>{% for h in hostels %}<div class="panel property"><div><h3>{{h['name']}} {% if h['verified'] %}<span class="badge verified">Verified</span>{% else %}<span class="badge pending">Pending approval</span>{% endif %}</h3><p>{{h['city']}}, {{h['region']}}{% if h['university'] %} • {{ h['university'] }}{% endif %} • {{h['facilities']}}</p></div>
+<form method="post" action="{{url_for('add_room',hostel_id=h['id'])}}" class="inline-form"><select name="room_type"><option>Single</option><option>Double</option><option>Shared</option></select><input name="price" type="number" placeholder="Price" required><input name="total_rooms" type="number" placeholder="Total" required><input name="available_rooms" type="number" placeholder="Available" required><button class="btn small">Add room</button></form>
+<form method="post" action="{{ url_for('upload_hostel_photos', hostel_id=h['id']) }}" enctype="multipart/form-data">
+  {% set photos = photos_by_hostel.get(h['id'], []) %}
+  {% include "_upload_panel.html" %}
+  <button class="btn outline">Upload hostel pictures</button>
+</form>
+</div>{% endfor %}
+<h2>Recent transactions</h2><div class="table-wrap"><table><tr><th>Student</th><th>Institution</th><th>Hostel</th><th>Room</th><th>Amount</th><th>Status</th></tr>{% for t in transactions %}<tr><td>{{t['student_name']}}</td><td>{{t['institution']}}</td><td>{{t['hostel_name']}}</td><td>{{t['room_type']}}</td><td>GH₵ {{ "%.0f"|format(t['amount']) }}</td><td>{{t['status']}}</td></tr>{% else %}<tr><td colspan="6">No transactions yet.</td></tr>{% endfor %}</table></div></section>{% endblock %}

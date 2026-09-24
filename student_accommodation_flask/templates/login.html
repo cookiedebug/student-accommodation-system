@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block title %}Login | {{ app_name }}{% endblock %}
+{% block content %}<div class="auth"><form class="panel" method="post"><h1>Welcome back</h1><p class="muted">Sign in to continue to {{ app_name }}.</p><label>Email</label><input name="email" type="email" required><label>Password</label><input name="password" type="password" required><button class="btn full">Login</button><p class="muted">Demo: student@hostelconnect.local / student123</p></form></div>{% endblock %}

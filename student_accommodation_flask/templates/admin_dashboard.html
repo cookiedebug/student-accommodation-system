@@ -1,0 +1,28 @@
+{% extends "base.html" %}{% block title %}Admin Dashboard | {{ app_name }}{% endblock %}
+{% block content %}<section class="section"><div class="section-head"><div><span class="eyebrow">ADMINISTRATOR</span><h1>System Administration</h1><p>Approve listings, upload pictures, monitor reports and view system statistics.</p></div><a class="btn" href="{{url_for('new_hostel')}}">+ Add Accommodation</a></div>
+<div class="stats"><div><b>{{stats.users}}</b><span>Total users</span></div><div><b>{{stats.listings}}</b><span>Listings</span></div><div><b>{{stats.verified}}</b><span>Verified</span></div><div><b>{{stats.reports}}</b><span>Open reports</span></div><div><b>GH₵ {{ "%.0f"|format(stats.revenue) }}</b><span>Demo transaction volume</span></div></div>
+<div class="panel property">
+  <h2>My pictures</h2>
+  <p class="muted">Administrators can upload their own photos here, the same way students and managers do.</p>
+  <form method="post" action="{{ url_for('upload_my_photos') }}" enctype="multipart/form-data">
+    {% include "_upload_panel.html" %}
+    <button class="btn">Upload pictures</button>
+  </form>
+</div>
+<h2>Hostel pictures</h2>
+<p class="muted">Upload photos for any listing. These appear on the hostel page.</p>
+{% for h in hostels %}
+<div class="panel property">
+  <div><h3>{{h['name']}} {% if h['verified'] %}<span class="badge verified">Verified</span>{% else %}<span class="badge pending">Pending approval</span>{% endif %}</h3><p>{{h['city']}}, {{h['region']}}{% if h['university'] %} • {{ h['university'] }}{% endif %} • Manager: {{ h['manager_name'] }}</p></div>
+  <form method="post" action="{{ url_for('upload_hostel_photos', hostel_id=h['id']) }}" enctype="multipart/form-data">
+    {% set photos = photos_by_hostel.get(h['id'], []) %}
+    {% include "_upload_panel.html" %}
+    <button class="btn outline">Upload hostel pictures</button>
+  </form>
+</div>
+{% else %}
+<p class="muted">No hostels yet.</p>
+{% endfor %}
+<h2>Pending accommodation approvals</h2><div class="table-wrap"><table><tr><th>Property</th><th>Manager</th><th>Location</th><th>Action</th></tr>{% for h in pending %}<tr><td>{{h['name']}}</td><td>{{h['manager_name']}}<br>{{h['manager_email']}}</td><td>{{h['city']}}, {{h['region']}}</td><td><form class="actions" method="post" action="{{url_for('verify_hostel',hostel_id=h['id'])}}"><button class="btn small">Approve</button></form><form class="actions" method="post" action="{{url_for('remove_hostel',hostel_id=h['id'])}}"><button class="btn danger small">Remove</button></form></td></tr>{% else %}<tr><td colspan="4">No pending listings.</td></tr>{% endfor %}</table></div>
+<h2>Reported listings</h2><div class="table-wrap"><table><tr><th>Hostel</th><th>Reporter</th><th>Reason</th><th>Action</th></tr>{% for r in reports %}<tr><td>{{r['hostel_name']}}</td><td>{{r['reporter_name'] or 'Unknown'}}</td><td>{{r['reason']}}</td><td><form method="post" action="{{url_for('close_report',report_id=r['id'])}}"><button class="btn outline small">Close</button></form></td></tr>{% else %}<tr><td colspan="4">No open reports.</td></tr>{% endfor %}</table></div>
+</section>{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block title %}Student Dashboard | {{ app_name }}{% endblock %}
+{% block content %}<section class="section"><div class="section-head"><div><span class="eyebrow">STUDENT</span><h1>My Accommodation</h1><p>Welcome, {{current_user['full_name']}}.</p></div><a class="btn" href="{{url_for('index')}}">Find Accommodation</a></div>
+<div class="panel property">
+  <h2>My pictures</h2>
+  <p class="muted">Upload your own photos. Administrators and managers use this same panel.</p>
+  <form method="post" action="{{ url_for('upload_my_photos') }}" enctype="multipart/form-data">
+    {% include "_upload_panel.html" %}
+    <button class="btn">Upload pictures</button>
+  </form>
+</div>
+<h2>My bookings</h2><div class="table-wrap"><table><tr><th>Hostel</th><th>Room</th><th>Amount</th><th>Status</th><th>Reference</th></tr>{% for b in bookings %}<tr><td>{{b['hostel_name']}}</td><td>{{b['room_type']}}</td><td>GH₵ {{ "%.0f"|format(b['amount']) }}</td><td><span class="badge verified">{{b['status']}}</span></td><td>{{b['payment_reference']}}</td></tr>{% else %}<tr><td colspan="5">No bookings yet.</td></tr>{% endfor %}</table></div>
+<h2>Saved accommodation</h2><div class="mini-grid">{% for h in favorites %}<a class="mini-card" href="{{url_for('hostel_detail',hostel_id=h['id'])}}"><b>{{h['name']}}</b><span>{{h['city']}}, {{h['region']}}</span></a>{% else %}<p class="muted">No favorites saved.</p>{% endfor %}</div></section>{% endblock %}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ app_name }}{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=purple-2">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="navbar">
+  <a class="brand" href="{{ url_for('index') }}"><span class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M4 18 20 5l16 13v17H23V24h-6v11H4z"/></svg></span><span><b>{{ app_name }}</b><small>Premium Student Accommodation</small></span></a>
+  <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+  <nav id="site-nav" aria-label="Main">
+    <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+    <a href="{{ url_for('index') }}#accommodations" class="{% if request.endpoint == 'hostel_detail' %}active{% endif %}">Browse Hostels</a>
+    <a href="{{ url_for('index') }}#universities">Universities</a>
+    <a href="{{ url_for('index') }}#accommodations">Compare</a>
+    <a href="#site-footer">About</a>
+    {% if current_user %}
+      <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint in ['dashboard','student_dashboard'] %}active{% endif %}">Dashboard</a>
+      {% if current_user['role'] == 'manager' %}<a href="{{ url_for('manager_dashboard') }}" class="{% if request.endpoint in ['manager_dashboard','new_hostel'] %}active{% endif %}">My listings</a>{% endif %}
+      {% if current_user['role'] == 'admin' %}<a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">Admin</a>{% endif %}
+      {% if current_user['role'] in ['admin','manager'] %}<a href="{{ url_for('analytics') }}" class="{% if request.endpoint == 'analytics' %}active{% endif %}">Analytics</a>{% endif %}
+      <span class="nav-user">{{ current_user['full_name'].split()[0] }}</span><a href="{{ url_for('logout') }}">Logout</a>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a>
+      <a class="btn small{% if request.endpoint == 'register' %} active{% endif %}" href="{{ url_for('register') }}">Sign Up</a>
+    {% endif %}
+  </nav>
+</header>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}<div class="flash-wrap">{% for cat,msg in messages %}<div class="flash {{cat}}">{{msg}}</div>{% endfor %}</div>{% endif %}
+{% endwith %}
+<main id="main">{% block content %}{% endblock %}</main>
+<footer id="site-footer"><div><b>{{ app_name }}</b> — {{ app_slogan }}</div><div>Student hostels across Ghana • Flask + SQLite</div></footer>
+<script>window.UNIVERSITIES_BY_REGION = {{ universities_by_region | tojson }};</script>
+<script src="{{ url_for('static', filename='campus.js') }}"></script>
+</body>
+</html>
